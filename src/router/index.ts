@@ -1,9 +1,13 @@
 import { createRouter, createWebHashHistory } from "vue-router"
+import { TOKEN_KEY } from '@/config/constant'
 import layout from "@/layout/index.vue"
 
 
 // 权限验证
 function auth() {
+  const token = window.sessionStorage.getItem(TOKEN_KEY) // 那九龙富阳水旱灾害的token
+
+  if (token) return true
   return true; // 这里可以添加实际的权限验证逻辑
 }
 

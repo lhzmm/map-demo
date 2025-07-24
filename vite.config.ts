@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
+import type { ComponentResolverObject } from 'unplugin-vue-components/types'
 // 如果使用 UI 库（如 Element Plus）
 // import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
@@ -8,7 +9,7 @@ import Components from 'unplugin-vue-components/vite'
  * 引入components 组件
  * @param option {}
  */
-function LHResolver(option:any) {
+function LHResolver(option:any = {}):ComponentResolverObject {
   return {
     type: 'component',
     resolve: (componentName:any) => {
@@ -34,14 +35,15 @@ export default defineConfig({
       include: [/\.vue$/, /\.vue\?vue/], // 包含的文件
       // exclude: [/\.spec\.ts$/, /\.test\.ts$/], // 排除测试文件
       // dts: true, // 是否生成类型声明文件
-      resolvers: [LHResolver],
+      resolvers: [LHResolver()],
       dts: 'src/components.d.ts', // 生成组件类型声明文件
     }),
   ],
   resolve: {
     alias: {
       '@': '/src', // 设置 @ 为 src 目录的别名
-    }
+    },
+    extensions: ['.js', '.ts', '.vue', '.json'], // 支持的文件扩展名
   },
   server: {
     port: 3000, // 设置开发服务器端口

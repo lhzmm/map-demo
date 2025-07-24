@@ -1,10 +1,11 @@
 <template>
   <div class="demo1">
-
+    <DemoMap1 ref="demoMap1" />
   </div>
 </template>
 
 <script lang="ts" setup>
+import DemoMap1 from '@/views/OLMap/DemoMap1.vue'
 
 </script>
 
