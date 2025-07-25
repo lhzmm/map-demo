@@ -124,11 +124,13 @@ class TZMergeLayer extends BaseMergeLayer {
     if (features && features.length === 1) { // 表示是单个点
       const properties = features[0].get('properties')
       properties.layerid = this.layerConfig.id
-      vm.pops = [properties]
+      // vm.pops = [properties] // 原 vue2 写法, 现兼容 vue3 响应式更新
+      vm.pops.splice(0, vm.pops.length, properties)
     } else if (!features) {
       const properties = feature.get('properties')
       properties.layerid = this.layerConfig.id
-      vm.pops = [properties]
+      // vm.pops = [properties] // 原 vue2 写法, 现兼容 vue3 响应式更新
+      vm.pops.splice(0, vm.pops.length, properties)
     }
   }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="demo-map1">
     <div id="demoMap" ref="demoMap">
-
+      <GeneralPop v-for="item in pops" :key="item.layerid + item.fid" :detail="item" :map="map" />
     </div>
   </div>
 </template>
@@ -18,7 +18,8 @@ import ShadeLayer from '@/views/OLMap/layers/ShadeLayer'
 import * as ENUM from '@/views/OLMap/config/enum'
 import TZMergeLayer from '@/views/OLMap/impl/TZMergeLayer'
 import { riverWaterLayer } from '@/views/OLMap/config/layerConfig'
-import { ref, onMounted, defineEmits, getCurrentInstance } from 'vue'
+import { ref, onMounted, defineEmits, getCurrentInstance, reactive } from 'vue'
+import GeneralPop from '@/views/OLMap/components/GeneralPop.vue'
 
 const instance = getCurrentInstance()
 const emits = defineEmits(['showMore'])
@@ -27,12 +28,16 @@ let map: any = null
 let viewer: any = null
 let layers: any = {}
 const demoMap = ref<HTMLDivElement | null>(null)
-const zoom = ref(8)
-const prevLoadLayers = ref([]) // 上一次加载图层
-const currentLoadLayers = ref([]) // 当前加载的图层
-const adcd = ref('330111')
+const zoom = ref<number>(8)
+let pops = reactive<any[]>([]) // 弹窗数据
+const prevLoadLayers = ref<string[]>([]) // 上一次加载图层
+const currentLoadLayers = ref<string[]>([]) // 当前加载的图层
+const adcd = ref<string>('330111')
 
-const clickLayers = ref([
+const clickLayers = ref<string[]>([
+  ENUM.REALTIME_RIVER_STATION,
+])
+const mouseoverLayers = ref<string[]>([
   ENUM.REALTIME_RIVER_STATION,
 ])
 
@@ -54,6 +59,7 @@ const initMap = async() => {
   changeLayers(1) // 加载天地图底图
   changeBoundary() // 初始化边界
   initClick() // 添加点击事件
+  initMouseOver() // 添加鼠标经过事件
   map.getView().on('change:resolution', checkZoom) // 添加获取层级方法
 
   initLayers([ENUM.REALTIME_RIVER_STATION]) // 初始化图层
@@ -86,12 +92,9 @@ const loadLayersVisible = (layerIds: Array<string>, visible: Boolean = false) =>
         console.warn(`图层 ${layerId} 不存在`)
         return
       }
-      console.log(`加载图层 ${layerId}`, 998)
       layers[layerId].load(new LayerParams({
-        vm: {
-          ...instance?.proxy,
-          map,
-        },
+        vm: { map, pops: pops },
+        layerid: layerId,
         searchInfo: {
           adcd: adcd.value,
           layerId,
@@ -101,7 +104,7 @@ const loadLayersVisible = (layerIds: Array<string>, visible: Boolean = false) =>
     })
   } else {
     layerIds.forEach((layerId: string) => {
-      layers[layerId]?.removeLayer(map, instance?.proxy)
+      layers[layerId]?.removeLayer(map)
     })
   }
 }
@@ -111,33 +114,72 @@ const checkZoom = () => {
 }
 // 初始化点击事件
 const initClick = () => {
-  function handleClick(evt: any) {
-    let layerid
+  const handleClick = (evt: any) => {
+    clearPop()
+    let layerId:string | undefined
     const {coordinate: coord, pixel} = evt
 
     const clickLayer = clickLayers.value
 
-    const clickFeature = map.forEachFeatureAtPixel(pixel, (feature, layer) => {
+    const clickFeature = map.forEachFeatureAtPixel(pixel, (feature:any, layer:any) => {
       if (!layer) return undefined
       if (clickLayer.indexOf(layer.get('id')) !== -1) { // 点击的元素是当前图层中需要点击事件的元素
-        layerid = layer.get('id')
+        layerId = layer.get('id')
         return feature
       }
+      return undefined
     })
 
     if (clickFeature) {
       let features = clickFeature.get('features') || [clickFeature]
       if (features.length > 1) {
-        map.getView().setZoom(this.map.getView().getZoom() + 1)
+        map.getView().setZoom(map.getView().getZoom() + 1)
         map.getView().setCenter(coord)
         return
       }
-      if (clickLayers.value.includes(layerid)) {
+      if (clickLayers.value.includes(layerId)) {
+        console.log(`点击图层 ${layerId}`,features[0].get('properties'), 998)
         emits('showMore', features[0].get('properties'))
       }
     }
   }
   map.on('click', handleClick)
+}
+// 初始化鼠标经过事件
+const initMouseOver = () => {
+  const handleMouseOver = (evt: any) => {
+    clearPop()
+    map.getTargetElement().style.cursor = 'auto'
+    let layerId:string | undefined
+    const {coordinate: coord, pixel} = evt
+    const clickLayer = mouseoverLayers.value
+    const clickFeature = map.forEachFeatureAtPixel(pixel, (feature: any, layer:any) => {
+      if (!layer) return undefined
+      if (clickLayer.indexOf(layer.get('id')) !== -1) { // 鼠标经过的元素是当前图层中需要点击事件的元素
+        layerId = layer.get('id')
+        return feature
+      }
+      return undefined
+    })
+    if (clickFeature) {
+      let features = clickFeature.get('features') || [clickFeature]
+      if (features.length > 1) {
+        map.getView().setZoom(map.getView().getZoom() + 1)
+        map.getView().setCenter(coord)
+        return
+      }
+      if (zoom.value < 12) { // 表示有元素选中
+        layers[layerId]?.mouseover(new LayerParams({
+          vm: { map, pops: pops },
+          layerid: layerId,
+          feature: clickFeature,
+          coord,
+        }))
+        console.log(`鼠标经过图层 ${layerId}`, pops, 9988)
+      }
+    }
+  }
+  map.on('pointermove', handleMouseOver)
 }
 // 底图切换
 const changeLayers = (val:number|string) => {
@@ -148,7 +190,10 @@ const changeBoundary = () => {
   layers.shadeLayer.load(map, adcd.value, true)
   layers.adcdLayer.load(map, adcd.value)
 }
-// 
+// 清楚弹窗
+const clearPop = () => {
+  pops.splice(0, pops.length) // 清空弹窗数据
+}
 
 onMounted(() => {
   if (demoMap.value) {
