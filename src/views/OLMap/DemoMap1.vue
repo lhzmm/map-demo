@@ -17,11 +17,17 @@ import ShadeLayer from '@/views/OLMap/layers/ShadeLayer'
 // import OrgAdcdWmsLayer from '@/views/OLMap/layers/OrgAdcdWmsLayer'
 import * as ENUM from '@/views/OLMap/config/enum'
 import TZMergeLayer from '@/views/OLMap/impl/TZMergeLayer'
-import { riverWaterLayer } from '@/views/OLMap/config/layerConfig'
-import { ref, onMounted, defineEmits, getCurrentInstance, reactive } from 'vue'
+import { riverWaterLayer, realTimeRainLayer } from '@/views/OLMap/config/layerConfig'
 import GeneralPop from '@/views/OLMap/components/GeneralPop.vue'
+import { ref, onMounted, defineEmits, defineProps, reactive, watch } from 'vue'
+import dayjs from 'dayjs'
 
-const instance = getCurrentInstance()
+const props = defineProps({
+  checkedLayers: {
+    type: Array,
+    default: () => []
+  }
+})
 const emits = defineEmits(['showMore'])
 
 let map: any = null
@@ -35,9 +41,11 @@ const currentLoadLayers = ref<string[]>([]) // 当前加载的图层
 const adcd = ref<string>('330111')
 
 const clickLayers = ref<string[]>([
+  ENUM.REALTIME_RAIN,
   ENUM.REALTIME_RIVER_STATION,
 ])
 const mouseoverLayers = ref<string[]>([
+  ENUM.REALTIME_RAIN,
   ENUM.REALTIME_RIVER_STATION,
 ])
 
@@ -54,6 +62,7 @@ const initMap = async() => {
     adcdLayer: new AdcdLayer(), // 行政区划边界图层
     // boundary: new OrgAdcdWmsLayer(),
 
+    [ENUM.REALTIME_RAIN]: new TZMergeLayer(realTimeRainLayer),
     [ENUM.REALTIME_RIVER_STATION]: new TZMergeLayer(riverWaterLayer),
   }
   changeLayers(1) // 加载天地图底图
@@ -62,7 +71,7 @@ const initMap = async() => {
   initMouseOver() // 添加鼠标经过事件
   map.getView().on('change:resolution', checkZoom) // 添加获取层级方法
 
-  initLayers([ENUM.REALTIME_RIVER_STATION]) // 初始化图层
+  // initLayers([ENUM.REALTIME_RAIN]) // 初始化图层
 
 }
 
@@ -99,6 +108,10 @@ const loadLayersVisible = (layerIds: Array<string>, visible: Boolean = false) =>
           adcd: adcd.value,
           layerId,
           keyword: '',
+          endDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+          startDate: dayjs().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
+          stnm: '',
+          rainStationType: '',
         }
       }))
     })
@@ -175,7 +188,6 @@ const initMouseOver = () => {
           feature: clickFeature,
           coord,
         }))
-        console.log(`鼠标经过图层 ${layerId}`, pops, 9988)
       }
     }
   }
@@ -194,6 +206,11 @@ const changeBoundary = () => {
 const clearPop = () => {
   pops.splice(0, pops.length) // 清空弹窗数据
 }
+
+// 监听图层变化
+watch(() => props.checkedLayers, (newVal: Array<string>) => {
+  initLayers(newVal)
+}, { immediate: true })
 
 onMounted(() => {
   if (demoMap.value) {

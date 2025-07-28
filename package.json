@@ -12,6 +12,7 @@
     "@dc/common-tool": "0.0.16",
     "@dc/dcmap-simple-ol": "^2.3.15",
     "axios": "^1.10.0",
+    "dayjs": "^1.11.13",
     "element-plus": "^2.10.4",
     "pinia": "^3.0.3",
     "vue": "^3.5.17",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue-jsx": "^5.0.1",
     "@vue/tsconfig": "^0.7.0",
     "less": "^4.4.0",
     "typescript": "~5.8.3",

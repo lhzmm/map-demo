@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    LhLayerFilter: typeof import('@/components/LayerFilter/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SecretDisplay: typeof import('./components/SecretDisplay/index.vue')['default']

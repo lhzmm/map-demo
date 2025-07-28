@@ -1,13 +1,14 @@
 <template>
   <div class="general-pop" ref="generalPop">
     <div class="label">{{ detail.stnm || '--' }}：</div>
-    <div class="value">{{ detail.z || detail.z === 0 ? detail.z.toFixed(2) : "--" }}m</div>
+    <div class="value">{{ popShowInfo.value }}{{popShowInfo.unit}}</div>
   </div>
 </template>
 
 <script setup lang="ts">
 import OverlayFactory from '@dc/dcmap-simple-ol/factory/OverlayFactory'
-import { onMounted, ref, defineProps, watch } from 'vue'
+import { onMounted, ref, defineProps, watch, computed } from 'vue'
+import * as ENUM from '@/views/OLMap/config/enum'
 
 const props = defineProps({
   detail: {
@@ -35,6 +36,30 @@ function initOverlay() {
   props.map.addOverlay(mouseoverPopOverlay);
   mouseoverPopOverlay.setPosition(undefined);
 }
+
+const popShowInfo = computed(() => {
+  const { layerid } = props.detail
+  if (!layerid) return '--'
+  let value = null
+  let fixed = 1
+  let unit = 'm'
+  switch (layerid) {
+    case ENUM.REALTIME_RAIN:
+      value = props.detail.drp
+      unit = 'mm'
+      break
+    case ENUM.REALTIME_RIVER_STATION:
+      value = props.detail.z
+      fixed = 2
+      break
+    default:
+      value = null
+  }
+  return {
+    value: (value || value === 0) ? value.toFixed(fixed) : "--",
+    unit
+  }
+})
 
 onMounted(() => {
   initOverlay()

@@ -34,8 +34,11 @@ class TZMergeLayer extends BaseMergeLayer {
     if (this.layerConfig.loadFunc) { // 并且没有缓存数据
       res = await this.layerConfig.loadFunc(searchInfo)
 
-      if (res.riverWaterList) {
+      if (res.riverWaterList) { // 表示是河道数据
         res = res.riverWaterList
+      }
+      if (res.rainList) { // 表示是雨情数据
+        res = res.rainList
       }
 
     }
@@ -43,7 +46,7 @@ class TZMergeLayer extends BaseMergeLayer {
 
     this.cacheDatas = JSON.parse(JSON.stringify(res))
     // 添加元素
-    this.lengendChange(params.getValueByKey('searchInfo'), res)
+    this.legendChange(params.getValueByKey('searchInfo'), res)
 
   }
 
@@ -52,7 +55,7 @@ class TZMergeLayer extends BaseMergeLayer {
    * @param {Object} searchInfo - 搜索参数
    * @param {Array} datas - 数据源
    */
-  lengendChange(searchInfo, datas) {
+  legendChange(searchInfo, datas) {
     // 清空图层
     this.clear()
     datas = datas || this.cacheDatas
@@ -76,8 +79,7 @@ class TZMergeLayer extends BaseMergeLayer {
   }
 
   createFeatures(datas) {
-    const { field } = this.layerConfig
-    const { dataOperate } = this.layerConfig
+    const { field, dataOperate } = this.layerConfig
     const features = []
     datas.forEach((element) => {
       if (element[field.lgtd] && element[field.lttd]) {
@@ -137,14 +139,6 @@ class TZMergeLayer extends BaseMergeLayer {
   // 地图点击打开弹窗
   click(params) {
     const feature = params.getValueByKey('feature')
-    // const vm = params.getValueByKey('vm')
-    // const olMap = params.getValueByKey('olMap')
-    // let map
-    // if (olMap) {
-    //   map = olMap.map
-    // } else {
-    //   map = vm.map
-    // }
     params.setValueByKey('row', feature.get('properties'))
     this.gotoMap(params)
   }

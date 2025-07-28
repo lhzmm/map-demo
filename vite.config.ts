@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
 import type { ComponentResolverObject } from 'unplugin-vue-components/types'
 // 如果使用 UI 库（如 Element Plus）
@@ -13,7 +14,7 @@ function LHResolver(option:any = {}):ComponentResolverObject {
   return {
     type: 'component',
     resolve: (componentName:any) => {
-      if (componentName.startsWith('LH')) {
+      if (componentName.startsWith('Lh')) {
         const partialName = componentName.slice(2)
         return {
           name: 'default',
@@ -27,6 +28,7 @@ function LHResolver(option:any = {}):ComponentResolverObject {
 export default defineConfig({
   plugins: [
     vue(),
+    vueJsx(),
     // 自动导入组件
     Components({
       // 配置自动导入组件
@@ -43,11 +45,11 @@ export default defineConfig({
     alias: {
       '@': '/src', // 设置 @ 为 src 目录的别名
     },
-    extensions: ['.js', '.ts', '.vue', '.json'], // 支持的文件扩展名
+    extensions: ['.js', '.ts', '.vue', '.json', 'jsx'], // 支持的文件扩展名
   },
   server: {
     port: 3000, // 设置开发服务器端口
-    open: true, // 启动时自动打开浏览器
+    // open: true, // 启动时自动打开浏览器
   },
   build: {
     outDir: 'dist', // 设置构建输出目录

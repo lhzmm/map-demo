@@ -2,13 +2,14 @@ import Style from 'ol/style/Style'
 import Fill from 'ol/style/Fill'
 import Stroke from 'ol/style/Stroke'
 import Icon from 'ol/style/Icon'
+import Text from 'ol/style/Text'
 import {
   LayerTypeEnum,
   SourceTypeEnum,
   StyleTypeEnum,
 } from '@dc/dcmap-simple-ol/enum/TypeEnum'
 import * as ENUM from '@/views/OLMap/config/enum'
-import { getRiverList } from '@/views/OLMap/config/layerRequest'
+import { getRiverList, getRainList } from '@/views/OLMap/config/layerRequest'
 
 // 河道站图标
 import riverGreen from '@/assets/mapImg/riverGreen.png'
@@ -18,6 +19,15 @@ import riverBlue from '@/assets/mapImg/riverBlue.png'
 // 水库站图标
 import reservoirGreen from '@/assets/mapImg/reservoirGreen.png'
 import reservoirOrange from '@/assets/mapImg/reservoirOrange.png'
+
+// 雨量站图标
+import rain0 from '@/assets/mapImg/rain0.png'
+import rain0_10 from '@/assets/mapImg/rain0-10mm.png'
+import rain10_25 from '@/assets/mapImg/rain10-25mm.png'
+import rain25_50 from '@/assets/mapImg/rain25-50mm.png'
+import rain50_100 from '@/assets/mapImg/rain50-100mm.png'
+import rain100_250 from '@/assets/mapImg/rain100-250mm.png'
+import rain250 from '@/assets/mapImg/rain250mm.png'
 
 
 const geoServerUrl = 'https://gis.dcyun.com:48475/geoserver'
@@ -99,22 +109,18 @@ export const riverWaterLayer = {
   loadFunc: getRiverList,
   filter: {
     filterFunc(searchInfo, datas) {
-      datas.forEach((element) => {
-        const { status } = element
-        if (status === 0 || status === '0') {
-          element.watertype = ENUM.REALTIME_RIVER_GREEN
-        } else if (status === 1 || status === '1') {
-          element.watertype = ENUM.REALTIME_RIVER_ORANGE
-        } else if (status === 2 || status === '2') {
-          element.watertype = ENUM.REALTIME_RIVER_RED
-        }
-      })
+      const waterTypeMap = {
+        0: ENUM.REALTIME_RIVER_GREEN,
+        1: ENUM.REALTIME_RIVER_ORANGE,
+        2: ENUM.REALTIME_RIVER_RED,
+      }
+      let tempData = datas.map((element) => ({...element, watertype: waterTypeMap[element.status] }))
       const { filterType } = searchInfo
 
       if (filterType) {
-        datas = datas.filter((element) => filterType.includes(element.watertype))
+        tempData = tempData.filter((element) => filterType.includes(element.watertype))
       }
-      return datas
+      return tempData
     },
   },
 }
@@ -147,31 +153,14 @@ function realTimeWaterSearchFunc(vm, searchInfo) {
 function realTimeWaterStyle(feature, res) {
   const { properties } = feature.getProperties()
   const styles = []
-  let img = reservoirGreen
-
-  switch (properties.watertype) {
-    case ENUM.REALTIME_RIVER_GREEN:
-      img = riverGreen
-      break
-    case ENUM.REALTIME_RIVER_ORANGE:
-      img = riverOrange
-      break
-    case ENUM.REALTIME_RIVER_RED:
-      img = riverRed
-      break
-    case ENUM.REALTIME_RESERVOIR_GREEN:
-      img = reservoirGreen
-      break
-    case ENUM.REALTIME_RESERVOIR_ORANGE:
-      img = reservoirOrange
-      break
-    case ENUM.REALTIME_RESERVOIR_OVER_GREEN:
-      img = reservoirOrange
-      break 
-    default:
-      img = reservoirBlue
-      break
-  }
+  let img = {
+    [ENUM.REALTIME_RIVER_GREEN]: riverGreen,
+    [ENUM.REALTIME_RIVER_ORANGE]: riverOrange,
+    [ENUM.REALTIME_RIVER_RED]: riverRed,
+    [ENUM.REALTIME_RESERVOIR_GREEN]: reservoirGreen,
+    [ENUM.REALTIME_RESERVOIR_ORANGE]: reservoirOrange,
+    [ENUM.REALTIME_RESERVOIR_OVER_GREEN]: reservoirOrange,
+  }[properties.watertype] || reservoirBlue
 
   const icon = new Icon({
     src: img,
@@ -187,4 +176,106 @@ function realTimeWaterStyle(feature, res) {
     styles.push(new Style({ image: icon }))
   }
   return styles
+}
+
+// 实时雨情图层
+export const realTimeRainLayer = {
+  id: ENUM.REALTIME_RAIN,
+  type: LayerTypeEnum.vector,
+  zIndex: 30,
+  source: { type: SourceTypeEnum.vector },
+  style: realTimeRainStyle,
+  field: {
+    id: 'stcd',
+    lgtd: 'lgtd',
+    lttd: 'lttd',
+  },
+  searchFunc: realTimeRainSearchFunc,
+  loadFunc: getRainList,
+  filter: {
+    filterFunc(searchInfo, datas) {
+      const rainTypeMap = (val) => {
+        if (val === 0) return ENUM.REALTIME_RAIN0
+        if (val > 0 && val < 10) return ENUM.REALTIME_RAIN0_10
+        if (val >= 10 && val < 25) return ENUM.REALTIME_RAIN10_25
+        if (val >= 25 && val < 50) return ENUM.REALTIME_RAIN25_50
+        if (val >= 50 && val < 100) return ENUM.REALTIME_RAIN50_100
+        if (val >= 100 && val < 250) return ENUM.REALTIME_RAIN100_250
+        if (val >= 250) return ENUM.REALTIME_RAIN250
+        return null
+      }
+      let tempData = datas.map((element) => ({...element, rainType: rainTypeMap(element.drp) }))
+      const { rainLegendChecked } = searchInfo
+
+      if (rainLegendChecked) {
+        tempData = tempData.filter((element) => rainLegendChecked.includes(element.rainType))
+      }
+      return tempData
+    }
+  }
+}
+function realTimeRainSearchFunc(vm, searchInfo) {
+  return {
+    stnm: searchInfo.stnm,
+    adcd: searchInfo.adcd,
+    endDate: searchInfo.endDate,
+    startDate: searchInfo.startDate,
+    rainStationType: searchInfo.rainStationType,
+  }
+}
+// 雨情样式
+function realTimeRainStyle(feature, res) {
+  const { properties } = feature.getProperties()
+  const styles = []
+  let img = {
+    [ENUM.REALTIME_RAIN0]: rain0,
+    [ENUM.REALTIME_RAIN0_10]: rain0_10,
+    [ENUM.REALTIME_RAIN10_25]: rain10_25,
+    [ENUM.REALTIME_RAIN25_50]: rain25_50,
+    [ENUM.REALTIME_RAIN50_100]: rain50_100,
+    [ENUM.REALTIME_RAIN100_250]: rain100_250,
+    [ENUM.REALTIME_RAIN250]: rain250,
+  }[properties.rainType] || rain0
+
+  const icon = new Icon({
+    src: img,
+    scale: 1,
+  })
+
+  if (res <= 0.00034332275390625) {
+    const text = new Text(textBack(`${properties.stnm}：${properties.rainType}mm`))
+    styles.push(new Style({
+      image: icon,
+      text,
+    }))
+  } else {
+    styles.push(new Style({ image: icon }))
+  }
+  
+  return styles
+}
+
+// 文字背景方法抽取处理-测站值
+function textBack(name, isClick, offX, offY) {
+  let offSetX = 20
+  let offSetY = -30
+  if (offX) offSetX = offX
+  if (offY) offSetY = offY
+  let backFillColor = '#0cBD6F'
+  if (isClick) { backFillColor = '#DC143CB2' }
+  return {
+    text: `${(name)}`,
+    font: '14px MicrosoftYaHei-Bold',
+    fill: new Fill({ color: '#fff' }),
+    offsetY: offSetY,
+    offsetX: offSetX,
+    textAlign: 'center',
+    // 标签的背景填充
+    backgroundStroke: new Stroke({
+      color: '#D4EAC4',
+      width: 1,
+    }),
+    backgroundFill: new Fill({ color: backFillColor }),
+    padding: [5, 5, 5, 5],
+  }
 }
