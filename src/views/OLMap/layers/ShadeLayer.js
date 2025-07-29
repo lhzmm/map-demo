@@ -1,10 +1,3 @@
-/**
- * @Author: dawnx
- * @Date: 2022-07-08
- * @LastEditTime: 2023-12-18
- * @LastEditors: dwanx
- * @Description: 阴影遮罩
- */
 
 import Feature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'

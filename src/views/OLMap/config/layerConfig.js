@@ -63,6 +63,27 @@ function adcdStyle(feature) {
   return style
 }
 
+// 下级行政区划边界
+export const townAdcdLayerConfig = {
+  type: LayerTypeEnum.vector,
+  id: 'townAdcdLayer',
+  zIndex: 10,
+  source: { type: SourceTypeEnum.vector },
+  style: townAdcdLayerStyle,
+}
+function townAdcdLayerStyle(feature) {
+  const text = feature.get('admin_div_name')
+  const style = new Style({
+    type: StyleTypeEnum.polygon,
+    fill: new Fill({ color: 'rgba(0,0,0,0)' }),
+    stroke: new Stroke({
+      color: '#00BFFF',
+      width: 1,
+    }),
+  })
+  return style
+}
+
 // 遮罩层-陪标用-待删除
 export const shadeLayer = {
   id: 'shade',
@@ -202,7 +223,7 @@ export const realTimeRainLayer = {
         if (val >= 50 && val < 100) return ENUM.REALTIME_RAIN50_100
         if (val >= 100 && val < 250) return ENUM.REALTIME_RAIN100_250
         if (val >= 250) return ENUM.REALTIME_RAIN250
-        return null
+        return ENUM.REALTIME_RAIN0
       }
       let tempData = datas.map((element) => ({...element, rainType: rainTypeMap(element.drp) }))
       const { rainLegendChecked } = searchInfo
@@ -243,7 +264,7 @@ function realTimeRainStyle(feature, res) {
   })
 
   if (res <= 0.00034332275390625) {
-    const text = new Text(textBack(`${properties.stnm}：${properties.rainType}mm`))
+    const text = new Text(textBack(`${properties.stnm}：${properties.drp ?? '--'}mm`))
     styles.push(new Style({
       image: icon,
       text,

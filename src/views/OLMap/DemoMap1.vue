@@ -14,7 +14,8 @@ import { createToken } from '@dc/dcmap-simple-ol/global/global'
 import LayerSwitch from '@/views/OLMap/layers/LayerSwitch'
 import AdcdLayer from '@/views/OLMap/layers/AdcdLayer'
 import ShadeLayer from '@/views/OLMap/layers/ShadeLayer'
-// import OrgAdcdWmsLayer from '@/views/OLMap/layers/OrgAdcdWmsLayer'
+import OrgAdcdWmsLayer from '@/views/OLMap/layers/OrgAdcdWmsLayer'
+import TownAdcdLayer from '@/views/OLMap/layers/TownAdcdLayer'
 import * as ENUM from '@/views/OLMap/config/enum'
 import TZMergeLayer from '@/views/OLMap/impl/TZMergeLayer'
 import { riverWaterLayer, realTimeRainLayer } from '@/views/OLMap/config/layerConfig'
@@ -25,8 +26,12 @@ import dayjs from 'dayjs'
 const props = defineProps({
   checkedLayers: {
     type: Array,
-    default: () => []
-  }
+    default: () => ([])
+  },
+  checkLegendList: {
+    type: Array,
+    default: () => ([])
+  },
 })
 const emits = defineEmits(['showMore'])
 
@@ -60,7 +65,8 @@ const initMap = async() => {
     layerSwitch: new LayerSwitch(), // 底图
     shadeLayer: new ShadeLayer(), // 阴影图层
     adcdLayer: new AdcdLayer(), // 行政区划边界图层
-    // boundary: new OrgAdcdWmsLayer(),
+    townAdcdLayer: new TownAdcdLayer(), // 镇级行政区划边界图层
+    boundary: new OrgAdcdWmsLayer(),
 
     [ENUM.REALTIME_RAIN]: new TZMergeLayer(realTimeRainLayer),
     [ENUM.REALTIME_RIVER_STATION]: new TZMergeLayer(riverWaterLayer),
@@ -201,6 +207,7 @@ const changeLayers = (val:number|string) => {
 const changeBoundary = () => {
   layers.shadeLayer.load(map, adcd.value, true)
   layers.adcdLayer.load(map, adcd.value)
+  layers.townAdcdLayer.load(map, adcd.value)
 }
 // 清楚弹窗
 const clearPop = () => {
@@ -210,6 +217,11 @@ const clearPop = () => {
 // 监听图层变化
 watch(() => props.checkedLayers, (newVal: Array<string>) => {
   initLayers(newVal)
+}, { immediate: true })
+// 监听图例筛选变化
+watch(() => props.checkLegendList, (newVal: Array<string>) => {
+  const currentLayer: string = props.checkedLayers.length ? String(props.checkedLayers[props.checkedLayers.length - 1]) : ''
+  layers[currentLayer]?.legendChange({rainLegendChecked: newVal })
 }, { immediate: true })
 
 onMounted(() => {
