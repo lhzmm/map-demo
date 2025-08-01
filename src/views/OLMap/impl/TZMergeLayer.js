@@ -6,7 +6,7 @@ import * as ENUM from '@/views/OLMap/config/enum'
 class TZMergeLayer extends BaseMergeLayer {
   async load(params) {
     const vm = params.getValueByKey('vm')
-    console.log(params, 9988)
+
     const olMap = params.getValueByKey('olMap')
     let map
     if (olMap) {
@@ -39,6 +39,9 @@ class TZMergeLayer extends BaseMergeLayer {
       }
       if (res.rainList) { // 表示是雨情数据
         res = res.rainList
+      }
+      if (res.resWaterList) { // 表示是水库数据
+        res = res.resWaterList
       }
 
     }

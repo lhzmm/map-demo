@@ -18,7 +18,7 @@ import OrgAdcdWmsLayer from '@/views/OLMap/layers/OrgAdcdWmsLayer'
 import TownAdcdLayer from '@/views/OLMap/layers/TownAdcdLayer'
 import * as ENUM from '@/views/OLMap/config/enum'
 import TZMergeLayer from '@/views/OLMap/impl/TZMergeLayer'
-import { riverWaterLayer, realTimeRainLayer } from '@/views/OLMap/config/layerConfig'
+import { riverWaterLayer, realTimeRainLayer, reservoirWaterLayer } from '@/views/OLMap/config/layerConfig'
 import GeneralPop from '@/views/OLMap/components/GeneralPop.vue'
 import { ref, onMounted, defineEmits, defineProps, reactive, watch } from 'vue'
 import dayjs from 'dayjs'
@@ -48,10 +48,12 @@ const adcd = ref<string>('330111')
 const clickLayers = ref<string[]>([
   ENUM.REALTIME_RAIN,
   ENUM.REALTIME_RIVER_STATION,
+  ENUM.REALTIME_RESERVOIR_STATION,
 ])
 const mouseoverLayers = ref<string[]>([
   ENUM.REALTIME_RAIN,
   ENUM.REALTIME_RIVER_STATION,
+  ENUM.REALTIME_RESERVOIR_STATION,
 ])
 
 // 初始化地图
@@ -70,6 +72,7 @@ const initMap = async() => {
 
     [ENUM.REALTIME_RAIN]: new TZMergeLayer(realTimeRainLayer),
     [ENUM.REALTIME_RIVER_STATION]: new TZMergeLayer(riverWaterLayer),
+    [ENUM.REALTIME_RESERVOIR_STATION]: new TZMergeLayer(reservoirWaterLayer),
   }
   changeLayers(1) // 加载天地图底图
   changeBoundary() // 初始化边界

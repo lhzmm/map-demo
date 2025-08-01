@@ -47,3 +47,20 @@ export const REALTIME_RAIN100_250 = 'realTimeRain100_250'
  * 实时雨情大于等于250毫米
  */
 export const REALTIME_RAIN250 = 'realTimeRain250'
+
+/**
+ * 实时水情-水库站
+ */
+export const REALTIME_RESERVOIR_STATION = 'realTimeReservoirStation'
+/**
+ * 实时水情-水库正常
+ */
+export const REALTIME_RESERVOIR_GREEN = 'realTimeReservoirGreen'
+/**
+ * 实时水情-水库超汛
+ */
+export const REALTIME_RESERVOIR_ORANGE = 'realTimeReservoirOrange'
+/**
+ * 实时水情-水库超正常
+ */
+export const REALTIME_RESERVOIR_OVER_GREEN = 'realTimeReservoirOverGreen'

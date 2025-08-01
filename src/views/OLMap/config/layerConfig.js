@@ -9,7 +9,7 @@ import {
   StyleTypeEnum,
 } from '@dc/dcmap-simple-ol/enum/TypeEnum'
 import * as ENUM from '@/views/OLMap/config/enum'
-import { getRiverList, getRainList } from '@/views/OLMap/config/layerRequest'
+import { getRiverList, getRainList, getReservoirList } from '@/views/OLMap/config/layerRequest'
 
 // 河道站图标
 import riverGreen from '@/assets/mapImg/riverGreen.png'
@@ -134,6 +134,37 @@ export const riverWaterLayer = {
         0: ENUM.REALTIME_RIVER_GREEN,
         1: ENUM.REALTIME_RIVER_ORANGE,
         2: ENUM.REALTIME_RIVER_RED,
+      }
+      let tempData = datas.map((element) => ({...element, watertype: waterTypeMap[element.status] }))
+      const { filterType } = searchInfo
+
+      if (filterType) {
+        tempData = tempData.filter((element) => filterType.includes(element.watertype))
+      }
+      return tempData
+    },
+  },
+}
+// 水库水情图层
+export const reservoirWaterLayer = {
+  id: ENUM.REALTIME_RESERVOIR_STATION,
+  type: LayerTypeEnum.vector,
+  zIndex: 40,
+  source: { type: SourceTypeEnum.vector },
+  style: realTimeWaterStyle,
+  field: {
+    id: 'stcd',
+    lgtd: 'lgtd',
+    lttd: 'lttd',
+  },
+  searchFunc: realTimeWaterSearchFunc,
+  loadFunc: getReservoirList,
+  filter: {
+    filterFunc(searchInfo, datas) {
+      const waterTypeMap = {
+        0: ENUM.REALTIME_RESERVOIR_GREEN,
+        1: ENUM.REALTIME_RESERVOIR_ORANGE,
+        2: ENUM.REALTIME_RESERVOIR_OVER_GREEN,
       }
       let tempData = datas.map((element) => ({...element, watertype: waterTypeMap[element.status] }))
       const { filterType } = searchInfo

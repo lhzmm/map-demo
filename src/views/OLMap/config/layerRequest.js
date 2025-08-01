@@ -8,3 +8,7 @@ export const getRiverList = (params) => {
 export const getRainList = (params) => {
   return createAjax('/rainCondition/v1/realTimeRainHour')(params, { onceAtSameTime: true })
 }
+
+export const getReservoirList = (params) => {
+  return createAjax('/water/v1/listResWaterRegime')(params, { onceAtSameTime: true })
+}
