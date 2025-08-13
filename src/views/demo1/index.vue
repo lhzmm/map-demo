@@ -53,7 +53,6 @@ const layerFilterConfigs = computed(() => {
       icon: 'icon-content-icon-tucengkongzhi',
       label: '图层控制',
       layout: 'horizontal',
-      labelPosition: 'outer',
     },
     checked: checkedKeyId.value === 'demo1',
     placement: 'bottom',

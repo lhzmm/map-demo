@@ -1,6 +1,6 @@
 import type { VNodeChild } from "vue";
 
-export type iconOrImg =
+export type IconOrImg =
   | {
       /**
        * 图标(优先级高于图片)
@@ -14,7 +14,7 @@ export type iconOrImg =
       img: string;
     };
 
-export type layerItemData = iconOrImg & {
+export type LayerItemData = IconOrImg & {
   /**
    * 展示文本（名字）
    */
@@ -33,36 +33,35 @@ export type layerItemData = iconOrImg & {
   customRender?: () => VNodeChild;
 };
 
-export type tabItem = iconOrImg &
-  (
-    | {
-        /**
-         * 布局方式(水平)
-         */
-        layout: "horizontal";
-      }
-    | {
-        /**
-         * 布局方式(垂直)
-         */
-        layout: "vertical";
-        /**
-         * 文本位置
-         */
-        labelPosition: "inner" | "outer";
-      }
-  ) & {
-    /**
-     * 显示文本(标题)
-     */
-    label: string;
-    /**
-     * 自定义渲染内容
-     */
-    customRender?: () => VNodeChild;
-  };
+export type tabItem = IconOrImg & {
+  /**
+   * 显示文本(标题)
+   */
+  label: string;
+  /**
+   * 自定义渲染内容
+   */
+  customRender?: () => VNodeChild;
+}  & ( 
+  | {
+      /**
+       * 布局方式(水平)
+       */
+      layout: "horizontal";
+    }
+  | {
+      /**
+       * 布局方式(垂直)
+       */
+      layout: "vertical";
+      /**
+       * 文本位置
+       */
+      labelPosition: "inner" | "outer";
+    }
+);
 
-export type baseProps = {
+export type BaseProps = {
   /**
    * 唯一标识
    */
@@ -97,13 +96,13 @@ export type baseProps = {
   customMainRender?: () => VNodeChild;
 };
 
-export type layerProps = {
+export type LayerProps = {
   /**
    * 内容图层选项配置
    */
-  layerConfig: layerItemData[] | { title: string; children: layerItemData[] }[];
+  layerConfig: LayerItemData[] | { title: string; children: LayerItemData[] }[];
   /**
-   * 选中的id (layerItemData 每一项的id) (仅 layerConfig 配置时有效)
+   * 选中的id (LayerItemData 每一项的id) (仅 layerConfig 配置时有效)
    */
   activeLayer: any[];
   /**
@@ -116,8 +115,9 @@ export type layerProps = {
   isMultiple?: boolean;
 };
 
-export type Props = baseProps | (baseProps & layerProps);
+export type Props = BaseProps | (BaseProps & LayerProps);
 
-export function defineLayerProps(props: Props | Props[]) {
+// 定义函数：接受单个 Props 或 Props 数组，返回相同的类型
+export function defineLayerProps<T extends Props | Props[]>(props: T): T {
   return props;
 }

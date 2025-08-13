@@ -36,7 +36,6 @@ const props = defineProps({
 const emits = defineEmits(['showMore'])
 
 let map: any = null
-let viewer: any = null
 let layers: any = {}
 const demoMap = ref<HTMLDivElement | null>(null)
 const zoom = ref<number>(8)
@@ -218,11 +217,11 @@ const clearPop = () => {
 }
 
 // 监听图层变化
-watch(() => props.checkedLayers, (newVal: Array<string>) => {
+watch(() => props.checkedLayers as string[], (newVal: string[]) => {
   initLayers(newVal)
 }, { immediate: true })
 // 监听图例筛选变化
-watch(() => props.checkLegendList, (newVal: Array<string>) => {
+watch(() => props.checkLegendList as string[], (newVal: string[]) => {
   const currentLayer: string = props.checkedLayers.length ? String(props.checkedLayers[props.checkedLayers.length - 1]) : ''
   layers[currentLayer]?.legendChange({rainLegendChecked: newVal })
 }, { immediate: true })
