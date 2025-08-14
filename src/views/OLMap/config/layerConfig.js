@@ -331,3 +331,110 @@ function textBack(name, isClick, offX, offY) {
     padding: [5, 5, 5, 5],
   }
 }
+
+// 等值面数据
+export const realTimeRainIsosurfaceLayer = {
+  type: LayerTypeEnum.vectorImage,
+  id: ENUM.REALTIME_RAIN_ISOSURFACE,
+  zIndex: 10,
+  source: { type: SourceTypeEnum.vector },
+  style: realTimeRainIsosurfaceStyle,
+}
+// 等值线面配色
+function realTimeRainIsosurfaceStyle(feature) {
+  const style = new Style({ fill: new Fill({ color: '#A7FDFD66' }) })
+  let color = '#A7FDFDB2'
+  const { level } = feature.getProperties()
+
+  if (level >= 450) color = '#CB0dF8B2'
+  else if (level < 450 && level >= 400) color = '#D22DF9B2'
+  else if (level < 400 && level >= 350) color = '#D94AFBB2'
+  else if (level < 350 && level >= 300) color = '#E16AFCB2'
+  else if (level < 300 && level >= 250) color = '#E98DFFB2'
+  else if (level < 250 && level >= 220) color = '#FF0404B2'
+  else if (level < 220 && level >= 190) color = '#FE1F1FB2'
+  else if (level < 190 && level >= 160) color = '#FC3131B2'
+  else if (level < 160 && level >= 130) color = '#FB4C4CB2'
+  else if (level < 130 && level >= 100) color = '#FA6565B2'
+  else if (level < 100 && level >= 90) color = '#EB5F0bB2'
+  else if (level < 90 && level >= 80) color = '#EE6B1CB2'
+  else if (level < 80 && level >= 70) color = '#F47D37B2'
+  else if (level < 70 && level >= 60) color = '#F88948B2'
+  else if (level < 60 && level >= 50) color = '#FC9B61B2'
+  else if (level < 50 && level >= 45) color = '#FDDC51B2'
+  else if (level < 45 && level >= 40) color = '#FDE066B2'
+  else if (level < 40 && level >= 35) color = '#FCE580B2'
+  else if (level < 35 && level >= 30) color = '#FBE995B2'
+  else if (level < 30 && level >= 25) color = '#FAEEB4B2'
+  else if (level < 25 && level >= 22) color = '#50B12DB2'
+  else if (level < 22 && level >= 19) color = '#4FC22DB2'
+  else if (level < 19 && level >= 16) color = '#4ED42DB2'
+  else if (level < 16 && level >= 13) color = '#4CE62DB2'
+  else if (level < 13 && level >= 10) color = '#4AFA2DB2'
+  else if (level < 10 && level >= 8) color = '#3586FFB2'
+  else if (level < 8 && level >= 6) color = '#58AAFFB2'
+  else if (level < 6 && level >= 4) color = '#70C4FEB2'
+  else if (level < 4 && level >= 2) color = '#86DBFEB2'
+  else if (level < 2 && level >= 1) color = '#A7FDFDB2'
+  else if (level < 1 && level > 0) color = '#A7FDFDB2'
+  else color = '#A7FDFD00'
+
+  style.getFill().setColor(color)
+  return style
+}
+// 等值线数据——用来展示text
+export const realTimeRainIsosurfaceTextLayer = {
+  type: LayerTypeEnum.vectorImage,
+  id: ENUM.REALTIME_RAIN_ISOSURFACE_TEXT,
+  zIndex: 15,
+  source: { type: SourceTypeEnum.vector },
+  style: realTimeRainIsosurfaceTextStyle,
+}
+function realTimeRainIsosurfaceTextStyle(feature) {
+  let width = ''
+  const textColor = '#F63E33'
+  let color = ''
+  const { level } = feature.getProperties()
+  let text = ''
+  if (level === 450) {
+    color = '#CB0dF8'
+    text = '450'
+    width = 2
+  } else if (level === 250) {
+    color = '#E98DFF'
+    text = '250'
+    width = 2
+  } else if (level === 100) {
+    color = '#FA6565'
+    text = '100'
+    width = 2
+  } else if (level === 50) {
+    color = '#FC9B61'
+    text = '50'
+    width = 2
+  } else if (level === 25) {
+    color = '#FAEEB4'
+    text = '25'
+    width = 2
+  } else if (level === 10) {
+    color = '#4AFA2D'
+    text = '10'
+    width = 2
+  } else {
+    color = '#A7FDFD'
+  }
+  if (level === 10 || level === 25 || level === 50 || level === 100 ||
+    level === 250 || level === 450) {
+    return new Style({
+      stroke: new Stroke({
+        color,
+        width,
+      }),
+      text: new Text({
+        text,
+        font: '16px MicrosoftYaHei-Bold',
+        fill: new Fill({ color: textColor }),
+      }),
+    })
+  }
+}

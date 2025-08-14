@@ -1,20 +1,7 @@
 /**
- * 实时水情-河道站
+ * 降雨等值面
  */
-export const REALTIME_RIVER_STATION = 'realTimeRiverStation'
-/**
- * 实时水情-河道正常
- */
-export const REALTIME_RIVER_GREEN = 'realTimeRiverGreen'
-/**
- * 实时水情-河道超警
- */
-export const REALTIME_RIVER_ORANGE = 'realTimeRiverOrange'
-/**
- * 实时水情-河道超保
- */
-export const REALTIME_RIVER_RED = 'realTimeRiverRed'
-
+export const REALTIME_RAIN_ISOSURFACE = 'realTimeRainIsosurface'
 /**
  * 实时雨情
  */
@@ -47,6 +34,23 @@ export const REALTIME_RAIN100_250 = 'realTimeRain100_250'
  * 实时雨情大于等于250毫米
  */
 export const REALTIME_RAIN250 = 'realTimeRain250'
+
+/**
+ * 实时水情-河道站
+ */
+export const REALTIME_RIVER_STATION = 'realTimeRiverStation'
+/**
+ * 实时水情-河道正常
+ */
+export const REALTIME_RIVER_GREEN = 'realTimeRiverGreen'
+/**
+ * 实时水情-河道超警
+ */
+export const REALTIME_RIVER_ORANGE = 'realTimeRiverOrange'
+/**
+ * 实时水情-河道超保
+ */
+export const REALTIME_RIVER_RED = 'realTimeRiverRed'
 
 /**
  * 实时水情-水库站

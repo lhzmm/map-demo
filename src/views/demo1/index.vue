@@ -63,6 +63,7 @@ const layerFilterConfigs = computed(() => {
         title: '监测图层',
         children: [
           { icon: 'icon-content-icon-yulaingzhan', name: '雨量站', id: ENUM.REALTIME_RAIN },
+          { icon: 'icon-content-icon-yanchengshuiwei', name: '降雨等值面', id: ENUM.REALTIME_RAIN_ISOSURFACE },
           { icon: 'icon-content-icon-shuiweizhan', name: '河道站', id: ENUM.REALTIME_RIVER_STATION },
           { icon: 'icon-content-icon-shuikuzhan', name: '水库站', id: ENUM.REALTIME_RESERVOIR_STATION },
         ]

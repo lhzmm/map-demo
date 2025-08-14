@@ -16,6 +16,7 @@ import AdcdLayer from '@/views/OLMap/layers/AdcdLayer'
 import ShadeLayer from '@/views/OLMap/layers/ShadeLayer'
 import OrgAdcdWmsLayer from '@/views/OLMap/layers/OrgAdcdWmsLayer'
 import TownAdcdLayer from '@/views/OLMap/layers/TownAdcdLayer'
+import RealtimeRainFallLayer from '@/views/OLMap/layers/RealTimeRainFallLayer'
 import * as ENUM from '@/views/OLMap/config/enum'
 import TZMergeLayer from '@/views/OLMap/impl/TZMergeLayer'
 import { riverWaterLayer, realTimeRainLayer, reservoirWaterLayer } from '@/views/OLMap/config/layerConfig'
@@ -32,6 +33,9 @@ const props = defineProps({
     type: Array,
     default: () => ([])
   },
+  timeResult: {
+
+  }
 })
 const emits = defineEmits(['showMore'])
 
@@ -54,6 +58,23 @@ const mouseoverLayers = ref<string[]>([
   ENUM.REALTIME_RIVER_STATION,
   ENUM.REALTIME_RESERVOIR_STATION,
 ])
+const rainIsosurFaceMap = {
+  '15,minute': 0,
+  '30,minute': 0,
+  '60,minute': 0,
+  '120,minute': 0,
+  '180,minute': 0,
+  '480,minute': 0,
+  '720,minute': 0,
+  '1440,minute': 0,
+  '1,hour': 1,
+  '3,hour': 3,
+  '6,hour': 6,
+  '12,hour': 12,
+  '24,hour': 24,
+  '48,hour': 48,
+  hourCustomDateTime: 0,
+}
 
 // 初始化地图
 const initMap = async() => {
@@ -72,6 +93,7 @@ const initMap = async() => {
     [ENUM.REALTIME_RAIN]: new TZMergeLayer(realTimeRainLayer),
     [ENUM.REALTIME_RIVER_STATION]: new TZMergeLayer(riverWaterLayer),
     [ENUM.REALTIME_RESERVOIR_STATION]: new TZMergeLayer(reservoirWaterLayer),
+    [ENUM.REALTIME_RAIN_ISOSURFACE]: new RealtimeRainFallLayer(),
   }
   changeLayers(1) // 加载天地图底图
   changeBoundary() // 初始化边界
@@ -120,6 +142,7 @@ const loadLayersVisible = (layerIds: Array<string>, visible: Boolean = false) =>
           startDate: dayjs().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
           stnm: '',
           rainStationType: '',
+          hour: rainIsosurFaceMap['24,hour'],
         }
       }))
     })
@@ -158,7 +181,7 @@ const initClick = () => {
         map.getView().setCenter(coord)
         return
       }
-      if (clickLayers.value.includes(layerId)) {
+      if (layerId && clickLayers.value.includes(layerId)) {
         console.log(`点击图层 ${layerId}`,features[0].get('properties'), 998)
         emits('showMore', features[0].get('properties'))
       }
@@ -190,7 +213,7 @@ const initMouseOver = () => {
         return
       }
       if (zoom.value < 12) { // 表示有元素选中
-        layers[layerId]?.mouseover(new LayerParams({
+        layerId && layers[layerId]?.mouseover(new LayerParams({
           vm: { map, pops: pops },
           layerid: layerId,
           feature: clickFeature,
