@@ -94,10 +94,10 @@ export default {
       this.width = 'auto'
       this.height = 'auto'
       this.refreshIndex += 1
-      setTimeout(() => {
-        this.width = `${this.$refs.MapLegends.offsetWidth}px`
-        this.height = `${this.$refs.MapLegends.offsetHeight}px`
-      }, 500)
+      this.$nextTick(() => {
+        this.width = `${this.$refs.MapLegends?.offsetWidth}px`
+        this.height = `${this.$refs.MapLegends?.offsetHeight}px`
+      })
     },
   },
 }

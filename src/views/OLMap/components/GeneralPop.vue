@@ -39,7 +39,10 @@ function initOverlay() {
 
 const popShowInfo = computed(() => {
   const { layerid } = props.detail
-  if (!layerid) return '--'
+  if (!layerid) return {
+    value: '--',
+    unit: ''
+  }
   let value = null
   let fixed = 1
   let unit = 'm'
@@ -49,6 +52,7 @@ const popShowInfo = computed(() => {
       unit = 'mm'
       break
     case ENUM.REALTIME_RIVER_STATION:
+    case ENUM.REALTIME_RESERVOIR_STATION:
       value = props.detail.z
       fixed = 2
       break

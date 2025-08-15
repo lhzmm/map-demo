@@ -65,6 +65,9 @@ export default {
   watch: {
     checked() {
       this.onResize()
+    },
+    layerConfig() {
+      this.onResize()
     }
   },
   mounted() {
@@ -95,12 +98,14 @@ export default {
       this.$emit('changeActiveLayer', tempAct)
     },
     onResize() {
-      if (this.checked) {
-        const popContainer = this.$refs.popContainer
-        this.popHeight = `${popContainer.offsetHeight}px`
-      } else {
-        this.popHeight = 0
-      }
+      this.$nextTick(() => {
+        if (this.checked) {
+          const popContainer = this.$refs.popContainer
+          this.popHeight = `${popContainer.offsetHeight}px`
+        } else {
+          this.popHeight = 0
+        }
+      })
     },
     renderIconOrImg(icon, img) {
       if (icon) return <i class={`icon ${icon}`}></i>
@@ -149,6 +154,7 @@ export default {
     },
     // 绘制浮窗主标题
     renderPopTitle() {
+      
       if (typeof this.customTitleRender === 'function') {
         return this.customTitleRender()
       }
@@ -176,7 +182,7 @@ export default {
     }
   },
   render() {
-    return (
+    return ( this.keyId ?
       <div class="dc-layer">
         {this.renderTabItem(this.tabItem)}
         {
@@ -189,7 +195,7 @@ export default {
           </div>)
           : ''
         }
-      </div>
+      </div> : null
     )
   }
 }

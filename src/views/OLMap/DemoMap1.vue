@@ -23,6 +23,7 @@ import { riverWaterLayer, realTimeRainLayer, reservoirWaterLayer } from '@/views
 import GeneralPop from '@/views/OLMap/components/GeneralPop.vue'
 import { ref, onMounted, defineEmits, defineProps, reactive, watch } from 'vue'
 import dayjs from 'dayjs'
+import type { MapTimeParams } from '@/utils/define'
 
 const props = defineProps({
   checkedLayers: {
@@ -33,8 +34,13 @@ const props = defineProps({
     type: Array,
     default: () => ([])
   },
-  timeResult: {
-
+  mapTimeParams: {
+    type: Object,
+    default: ():MapTimeParams => ({
+      startDate: '',
+      endDate: '',
+      timeId: ''
+    })
   }
 })
 const emits = defineEmits(['showMore'])
@@ -105,8 +111,8 @@ const initMap = async() => {
 
 }
 
-const initLayers = (layers: Array<string>) => {
-  function findArrayDiff(newArr: Array<string>, oldArr: Array<string>) {
+const initLayers = (layers: string[]) => {
+  function findArrayDiff(newArr: string[], oldArr: string[]) {
     const newSet = new Set(newArr);
     const oldSet = new Set(oldArr);
     // 新数组有而老数组没有的项（新增项）
@@ -124,13 +130,14 @@ const initLayers = (layers: Array<string>) => {
   currentLoadLayers.value = [...tempLayers] // 更新当前加载的图层
 }
 // 加载图层数据可见性
-const loadLayersVisible = (layerIds: Array<string>, visible: Boolean = false) => {
+const loadLayersVisible = (layerIds: string[], visible: Boolean = false) => {
   if (visible) {
     layerIds.forEach((layerId: string) => {
       if (!layers[layerId]) {
         console.warn(`图层 ${layerId} 不存在`)
         return
       }
+      const { startDate, endDate, timeId } = props.mapTimeParams
       layers[layerId].load(new LayerParams({
         vm: { map, pops: pops },
         layerid: layerId,
@@ -138,11 +145,11 @@ const loadLayersVisible = (layerIds: Array<string>, visible: Boolean = false) =>
           adcd: adcd.value,
           layerId,
           keyword: '',
-          endDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-          startDate: dayjs().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
+          startDate: dayjs(startDate).format('YYYY-MM-DD HH:mm:00'),
+          endDate: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
           stnm: '',
           rainStationType: '',
-          hour: rainIsosurFaceMap['24,hour'],
+          hour: rainIsosurFaceMap[timeId as keyof typeof rainIsosurFaceMap],
         }
       }))
     })
@@ -249,6 +256,12 @@ watch(() => props.checkLegendList as string[], (newVal: string[]) => {
   layers[currentLayer]?.legendChange({rainLegendChecked: newVal })
 }, { immediate: true })
 
+watch(() => props.mapTimeParams as MapTimeParams, () => {
+  initLayers([])
+  initLayers(props.checkedLayers as string[])
+}, {
+  deep: true
+})
 onMounted(() => {
   if (demoMap.value) {
     initMap()
